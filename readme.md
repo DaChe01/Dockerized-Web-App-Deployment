@@ -11,10 +11,9 @@ project/
 ├── ansible/
 │   ├── inventory.ini
 │   ├── playbooks/
-│   │   ├── install_docker.yaml
-│   │   ├── install_k8s.yaml
-│   │   ├── build_push_image.yaml
-│   │   └── deploy_k8s.yaml
+│   │   ├── install.yaml
+│   │   ├── start.yaml
+│   │   └── deploy.yaml
 │   └── roles/
 │       ├── deployment.yaml
 │       └── service.yaml
