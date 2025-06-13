@@ -1,0 +1,88 @@
+- name: Build and Deploy React App to Minikube
+  hosts: remote
+  become: true
+  vars:
+    image_name: react-app
+    image_tag: v1
+    image_tar: /tmp/react-app.tar        # Destination path on remote
+    local_tar_path: "{{ playbook_dir }}/react-app.tar"
+    k8s_dir: "/home/{{ ansible_user }}/k8s"
+
+  tasks:
+
+    - name: Build Docker image locally
+      delegate_to: localhost
+      run_once: true
+      args:
+        chdir: "../../app"
+      shell: docker build -t {{ image_name }}:{{ image_tag }} .
+
+    - name: Save Docker image as tarball locally
+      delegate_to: localhost
+      run_once: true
+      shell: docker save -o {{ local_tar_path }} {{ image_name }}:{{ image_tag }}
+
+    - name: Ensure react-app.tar has correct permissions locally
+      delegate_to: localhost
+      run_once: true
+      file:
+        path: "{{ local_tar_path }}"
+        owner: "{{ lookup('env', 'USER') }}"
+        group: "{{ lookup('env', 'USER') }}"
+        mode: '0644'
+
+    - name: Copy Docker image archive to remote
+      copy:
+        src: "{{ local_tar_path }}"
+        dest: "{{ image_tar }}"
+        mode: '0644'
+
+    - name: Set Docker to use Minikube's environment on remote
+      become: false
+      shell: eval $(minikube docker-env) && echo "Minikube Docker env set"
+      args:
+        executable: /bin/bash
+
+    - name: Load Docker image into Minikube on remote
+      become: false
+      shell: eval $(minikube docker-env) && docker load -i {{ image_tar }}
+      args:
+        executable: /bin/bash
+
+    - name: Delete image tarball from remote (optional cleanup)
+      file:
+        path: "{{ image_tar }}"
+        state: absent
+
+    - name: Ensure k8s manifest directory exists on remote
+      become: false
+      file:
+        path: "{{ k8s_dir }}"
+        state: directory
+        mode: '0755'
+
+    - name: Copy deployment.yaml to remote
+      become: false
+      copy:
+        src: ../roles/deployment.yaml
+        dest: "{{ k8s_dir }}/deployment.yaml"
+
+    - name: Copy service.yaml to remote
+      become: false
+      copy:
+        src: ../roles/service.yaml
+        dest: "{{ k8s_dir }}/service.yaml"
+
+    - name: Apply deployment manifest
+      become: false
+      shell: eval $(minikube docker-env) && minikube kubectl -- apply -f deployment.yaml
+      args:
+        chdir: "{{ k8s_dir }}"
+        executable: /bin/bash
+
+    - name: Apply service manifest
+      become: false
+      shell: eval $(minikube docker-env) && minikube kubectl -- apply -f service.yaml
+      args:
+        chdir: "{{ k8s_dir }}"
+        executable: /bin/bash

@@ -1,0 +1,31 @@
+- name: Setup and Start Minikube with Docker driver
+  hosts: remote
+  become: true  #run as an administrator
+  vars:
+    kubernetes_version: v1.28.0  #sets the k8s version to use for the Minikube cluster
+
+  tasks:
+    - name: Ensure Docker is installed
+      apt:
+        name: docker.io
+        state: present
+        update_cache: yes
+
+    - name: Start and enable Docker
+      service:
+        name: docker
+        state: started
+        enabled: true  #ensures Docker will start automatically
+
+    # - name: Download Minikube binary
+    #   get_url:
+    #     url: https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+    #     dest: /usr/local/bin/minikube
+    #     mode: '0755'
+
+    - name: Delete any existing Minikube cluster (to avoid driver conflicts)
+      shell: minikube delete || true
+
+    - name: Start Minikube with Docker driver
+      become: false
+      shell: minikube start --driver=docker --kubernetes-version={{ kubernetes_version }}

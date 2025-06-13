@@ -1,0 +1,42 @@
+# Node modules and log files
+app/node_modules/
+app/npm-debug.log
+app/yarn-debug.log
+app/yarn-error.log
+
+# Vite build output
+app/dist/
+app/.vite/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# dotenv environment files
+*.env
+*.env.local
+
+# Editor/IDE folders
+.vscode/
+.idea/
+*.swp
+
+# Docker build artifacts
+*.tar
+react-app.tar
+
+# Ansible cache
+*.retry
+.ansible/
+
+# OS-generated files
+ehthumbs.db
+Icon?
+desktop.ini
+
+# Optional: exclude SSH private keys if any
+*.pem
+*.key
+
+# Ignore public files that shouldn't be versioned
+app/public/*.log
