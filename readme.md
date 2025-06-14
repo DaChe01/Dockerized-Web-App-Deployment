@@ -1,12 +1,12 @@
-# Dockerized Web App Deployment using Ansible Playbook on Kubernetes Cluster
+Dockerized Web App Deployment using Ansible Playbook on Kubernetes Cluster
 
 This project demonstrates a complete CI/CD workflow for deploying a React application using Docker, Ansible, and Minikube (Kubernetes).
 
+
 ---
 
-## 🚀 Project Structure
+🚀 Project Structure
 
-```
 project/
 ├── ansible/
 │   ├── inventory.ini
@@ -19,102 +19,174 @@ project/
 │       └── service.yaml
 ├── app/
 │   ├── Dockerfile
-│   └── public/
-│   └── src/
-│       ├── components/
-│       │   ├── App.jsx
-│       │   └── dict.jsx
-│       ├── emojipedia.js
-│       ├── index.jsx
-│       ├── package.json
-│       └── vite.config.js
-```
+│   ├── public/
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── App.jsx
+│   │   │   └── dict.jsx
+│   │   ├── emojipedia.js
+│   │   ├── index.jsx
+│   │   ├── package.json
+│   │   └── vite.config.js
+
 
 ---
 
-## 🔧 Technologies Used
+🔧 Technologies Used
 
-* React.js
-* Docker
-* Ansible
-* Kubernetes (Minikube)
-* Nginx
+React.js
 
----
+Docker
 
-## 📜 Ansible Playbooks
+Ansible
 
-### `install.yaml`
+Kubernetes (Minikube)
 
-* Installs Docker and Minikube on the remote host.
+Nginx
 
-### `start.yaml`
 
-* Starts Minikube with Docker driver and cleans any previous clusters.
-
-### `deploy.yaml`
-
-* Builds the React app image locally.
-* Transfers the Docker image to the remote server.
-* Loads the image into Minikube's Docker.
-* Applies Kubernetes manifests (`deployment.yaml`, `service.yaml`).
 
 ---
 
-## 📦 Docker Setup
+📜 Ansible Playbooks
+
+install.yaml
+
+Installs Docker and Minikube on the remote host.
+
+
+start.yaml
+
+Starts Minikube with Docker driver and cleans any previous clusters.
+
+
+deploy.yaml
+
+Builds the React app image locally.
+
+Transfers the Docker image to the remote server.
+
+Loads the image into Minikube's Docker.
+
+Applies Kubernetes manifests (deployment.yaml, service.yaml).
+
+
+
+---
+
+📦 Docker Setup
 
 A multi-stage Dockerfile is used:
 
-1. **Build Stage**: Compiles the React app using `node:latest`.
-2. **Run Stage**: Serves the compiled files using `nginx:alpine`.
+1. Build Stage: Compiles the React app using node:latest.
+
+
+2. Run Stage: Serves the compiled files using nginx:alpine.
+
+
+
 
 ---
 
-## ☸️ Kubernetes Configuration
+☘️ Kubernetes Configuration
 
-### `deployment.yaml`
+deployment.yaml
 
-* Deploys a single replica pod for `react-app:v1`.
-* Exposes port 80.
+Deploys a single replica pod for react-app:v1.
 
-### `service.yaml`
+Exposes port 80.
 
-* Exposes the deployment using `LoadBalancer` on `nodePort: 30036`.
+
+service.yaml
+
+Exposes the deployment using LoadBalancer on nodePort: 30036.
+
+
 
 ---
 
-## 📱 React Application
+📱 React Application
 
 This is a simple emoji dictionary app:
 
-* `App.jsx` maps over `emojipedia.js` and renders entries.
-* `dict.jsx` renders each emoji entry.
+App.jsx maps over emojipedia.js and renders entries.
+
+dict.jsx renders each emoji entry.
+
+
 
 ---
 
-## 🔄 Deployment Flow
+🛠️ How to Run (Execution Steps)
 
-1. Run `install.yaml` to install Docker and Minikube.
-2. Run `start.yaml` to start the Minikube cluster.
-3. Run `deploy.yaml` to build, transfer, and deploy the app.
-4. Access the app via `Minikube IP:30036`.
+> ⚠️ Ensure your local system has Docker and Ansible installed. SSH must be enabled on the remote host.
 
----
 
-## 📌 Notes
 
-* Make sure Docker and Ansible are installed on your local machine.
-* Remote host should be accessible via SSH.
-* Customize `inventory.ini` with your remote host details.
+1. Update Inventory File
 
----
+Edit ansible/inventory.ini with the IP address or hostname of your remote server:
 
-## 📧 Author
+[web]
+192.168.1.X ansible_user=your_user ansible_ssh_private_key_file=~/.ssh/id_rsa ansible_port=2222
 
-**Khangembam Alex D Nelson**
 
 ---
 
-## 🏷️ Tags
+2. Install Dependencies on Remote Host
 
-`#React` `#Ansible` `#Docker` `#Kubernetes` `#Minikube` `#CI/CD`
+cd ansible/playbooks
+ansible-playbook -i ../inventory.ini install.yaml
+
+
+---
+
+3. Start Minikube on Remote Host
+
+ansible-playbook -i ../inventory.ini start.yaml
+
+
+---
+
+4. Deploy the App
+
+ansible-playbook -i ../inventory.ini deploy.yaml
+
+
+---
+
+5. Access the App
+
+Get the Minikube IP:
+
+minikube ip
+
+Access the app in your browser at:
+http://<Minikube-IP>:30036
+
+
+---
+
+📌 Notes
+
+The Docker image is built on your local system and transferred to the remote host.
+
+Kubernetes manifests are applied from the roles/ directory.
+
+Vite + Nginx is used for blazing-fast frontend delivery.
+
+
+
+---
+
+📧 Author
+
+Khangembam Alex D Nelson
+
+
+---
+
+🏷️ Tags
+
+#React #Ansible #Docker #Kubernetes #Minikube #CI/CD
+
